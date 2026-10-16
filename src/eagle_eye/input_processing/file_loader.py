@@ -397,8 +397,13 @@ def checklist_to_inspection_results(df: pd.DataFrame) -> List[InspectionItemResu
 
         # Combine notes
         combined_notes = notes
-        if comp_type and comp_type not in combined_notes:
-            combined_notes = f"[{comp_type}] {combined_notes}".strip()
+        # Determine source_type: automatic or demo_seeded
+        if "source_type" in row and pd.notna(row.get("source_type")) and str(row.get("source_type")).strip():
+            src_type = str(row.get("source_type")).strip()
+        elif has_demo_status or "demo_found_value" in row:
+            src_type = "demo_seeded"
+        else:
+            src_type = "automatic"
 
         item = InspectionItemResult(
             check_id=check_id,
@@ -409,6 +414,7 @@ def checklist_to_inspection_results(df: pd.DataFrame) -> List[InspectionItemResu
             notes=combined_notes,
             evidence_bbox=evidence_bbox,
             marker_id=marker_id,
+            source_type=src_type,
         )
         items.append(item)
 

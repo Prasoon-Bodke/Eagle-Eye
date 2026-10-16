@@ -31,6 +31,7 @@ def generate_summary_dataframe(summary: InspectionSummary) -> pd.DataFrame:
             "Expected": item.expected_value,
             "Found": item.found_value if item.found_value is not None else "N/A",
             "Status": item.status.value,
+            "Source": getattr(item, "source_type", "demo_seeded"),
             "Notes": item.notes,
         })
     return pd.DataFrame(records)
@@ -83,14 +84,15 @@ def export_report_markdown(summary: InspectionSummary) -> str:
         "",
         "## Detailed Checklist Results",
         "",
-        "| Check ID | Item | Expected | Found | Status | Notes |",
-        "|---|---|---|---|---|---|",
+        "| Check ID | Item | Expected | Found | Status | Source | Notes |",
+        "|---|---|---|---|---|---|---|",
     ]
 
     for item in summary.items:
+        source_label = getattr(item, "source_type", "demo_seeded")
         md.append(
             f"| {item.check_id} | {item.check_name} | {item.expected_value} | "
-            f"{item.found_value or 'N/A'} | {item.status.value} | {item.notes} |"
+            f"{item.found_value or 'N/A'} | {item.status.value} | {source_label} | {item.notes} |"
         )
 
     return "\n".join(md)
